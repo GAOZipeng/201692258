@@ -17,16 +17,16 @@
   (Compile, run, and redirect the output to endian.h.)
 */
 
-//ÅĞ¶Ï´óĞ¡¶Ë
+//åˆ¤æ–­å¤§å°ç«¯
 #include <stdio.h>
 
-int litend(void)  { //ÅĞ¶ÏÎªĞ¡¶Ë	
+int litend(void)  { //åˆ¤æ–­ä¸ºå°ç«¯	
 	int i = 0;
 	((char *)(&i))[0] = 1;
 	return (i == 1);
 }
 
-int bigend(void) //ÅĞ¶ÏÎª´ó¶Ë
+int bigend(void) //åˆ¤æ–­ä¸ºå¤§ç«¯
 {
 	return !litend();
 }
@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 	printf("#ifndef _DSR_ENDIAN_H\n");
 	printf("#define _DSR_ENDIAN_H\n");
 	printf("#define __%s_ENDIAN_BITFIELD 1234\n",
-	       litend()? "LITTLE" : "BIG"); //Êä³ö´óĞ¡¶Ë²¢define _ENDIAN_BITFIELD Îª1234 	printf("#endif\n");
+	       litend()? "LITTLE" : "BIG"); //è¾“å‡ºå¤§å°ç«¯å¹¶define _ENDIAN_BITFIELD ä¸º1234 	
+	printf("#endif\n");
 	return 0;
 }
