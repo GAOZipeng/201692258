@@ -53,9 +53,10 @@ class DSRUUTimer:public TimerHandler {
 	char *name_;
 };
 
-static inline void gettime(struct timeval *tv)
+//function: 获取当前时间 并存储于时间结构tv中
+static inline void gettime(struct timeval *tv) // timeval结构体是linux中定义的一个高精度时间管理的结构体
 {
-	double now, usecs;
+	double now, usecs;							
 
 	/* Timeval is required, timezone is ignored */
 	if (!tv)
@@ -65,7 +66,7 @@ static inline void gettime(struct timeval *tv)
 
 	tv->tv_sec = (long)now;	/* Removes decimal part */
 	usecs = (now - tv->tv_sec) * 1000000;
-	tv->tv_usec = (long)usecs;
+	tv->tv_usec = (long)usecs;				//usecs能获取当前的微秒级时间
 }
 
 #else
@@ -74,6 +75,7 @@ static inline void gettime(struct timeval *tv)
 
 typedef struct timer_list DSRUUTimer;
 
+//function：将expire中存储的时间信息更新到DSRUU的Timer中
 static inline void set_timer(DSRUUTimer * t, struct timeval *expires)
 {
 	unsigned long exp_jiffies;
@@ -110,6 +112,7 @@ static inline void gettime(struct timeval *tv)
 }
 #endif				/* NS2 */
 
+//显示时间
 static inline char *print_timeval(struct timeval *tv)
 {
 	static char buf[56][56];
@@ -125,6 +128,7 @@ static inline char *print_timeval(struct timeval *tv)
 
 /* These functions may overflow (although unlikely)... Should probably be
  * improtved in the future */
+//返回两个时间相差得微秒数
 static inline long timeval_diff(struct timeval *tv1, struct timeval *tv2)
 {
 	if (!tv1 || !tv2)
