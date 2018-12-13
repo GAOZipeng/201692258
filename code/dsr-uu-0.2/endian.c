@@ -17,16 +17,17 @@
   (Compile, run, and redirect the output to endian.h.)
 */
 
+//判断大小端
+
 #include <stdio.h>
 
-int litend(void)
-{
+int litend(void)  { //小端判断
 	int i = 0;
 	((char *)(&i))[0] = 1;
 	return (i == 1);
 }
 
-int bigend(void)
+int bigend(void) //大端判断
 {
 	return !litend();
 }
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
 	printf("#ifndef _DSR_ENDIAN_H\n");
 	printf("#define _DSR_ENDIAN_H\n");
 	printf("#define __%s_ENDIAN_BITFIELD 1234\n",
-	       litend()? "LITTLE" : "BIG");
+	       litend()? "LITTLE" : "BIG"); //输出大小端宏
 	printf("#endif\n");
 	return 0;
 }
