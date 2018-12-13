@@ -3,7 +3,7 @@
  * This file is distributed under the terms of the GNU general Public
  * License (GPL), see the file LICENSE
  *
- * Author: Björn Wiberg <bjorn.wiberg@home.se>
+ * Author: Bj?n Wiberg <bjorn.wiberg@home.se>
  */
 
 /*
@@ -17,17 +17,16 @@
   (Compile, run, and redirect the output to endian.h.)
 */
 
-//åˆ¤æ–­å¤§å°ç«¯
-
+//ÅĞ¶Ï´óĞ¡¶Ë
 #include <stdio.h>
 
-int litend(void)  { //å°ç«¯åˆ¤æ–­
+int litend(void)  { //ÅĞ¶ÏÎªĞ¡¶Ë	
 	int i = 0;
 	((char *)(&i))[0] = 1;
 	return (i == 1);
 }
 
-int bigend(void) //å¤§ç«¯åˆ¤æ–­
+int bigend(void) //ÅĞ¶ÏÎª´ó¶Ë
 {
 	return !litend();
 }
@@ -37,7 +36,6 @@ int main(int argc, char **argv)
 	printf("#ifndef _DSR_ENDIAN_H\n");
 	printf("#define _DSR_ENDIAN_H\n");
 	printf("#define __%s_ENDIAN_BITFIELD 1234\n",
-	       litend()? "LITTLE" : "BIG"); //è¾“å‡ºå¤§å°ç«¯å®
-	printf("#endif\n");
+	       litend()? "LITTLE" : "BIG"); //Êä³ö´óĞ¡¶Ë²¢define _ENDIAN_BITFIELD Îª1234 	printf("#endif\n");
 	return 0;
 }
