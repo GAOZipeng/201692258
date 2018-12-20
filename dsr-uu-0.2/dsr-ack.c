@@ -23,12 +23,12 @@
 #include "maint-buf.h"
 
 struct dsr_ack_opt *dsr_ack_opt_add(char *buf, int len, struct in_addr src,
-				    struct in_addr dst, unsigned short id)
+				    struct in_addr dst, unsigned short id)//添加
 {
 	struct dsr_ack_opt *ack = (struct dsr_ack_opt *)buf;
-
 	if (len < (int)DSR_ACK_HDR_LEN)
 		return NULL;
+
 
 	ack->type = DSR_OPT_ACK;
 	ack->length = DSR_ACK_OPT_LEN;
@@ -39,7 +39,7 @@ struct dsr_ack_opt *dsr_ack_opt_add(char *buf, int len, struct in_addr src,
 	return ack;
 }
 
-int NSCLASS dsr_ack_send(struct in_addr dst, unsigned short id)
+int NSCLASS dsr_ack_send(struct in_addr dst, unsigned short id)//发送
 {
 	struct dsr_pkt *dp;
 	struct dsr_ack_opt *ack_opt;
@@ -53,7 +53,7 @@ int NSCLASS dsr_ack_send(struct in_addr dst, unsigned short id)
 /* 		return -1; */
 /* 	} */
 
-	len = DSR_OPT_HDR_LEN + /* DSR_SRT_OPT_LEN(srt) +  */ DSR_ACK_HDR_LEN;
+	len = DSR_OPT_HDR_LEN + /* DSR_SRT_OPT_LEN(srt) +  */ DSR_ACK_HDR_LEN;//头长度之和
 
 	dp = dsr_pkt_alloc(NULL);
 
@@ -68,14 +68,14 @@ int NSCLASS dsr_ack_send(struct in_addr dst, unsigned short id)
 		goto out_err;
 
 	dp->nh.iph = dsr_build_ip(dp, dp->src, dp->dst, IP_HDR_LEN,
-				  IP_HDR_LEN + len, IPPROTO_DSR, IPDEFTTL);
+				  IP_HDR_LEN + len, IPPROTO_DSR, IPDEFTTL);//新建ip
 
 	if (!dp->nh.iph) {
 		DEBUG("Could not create IP header\n");
 		goto out_err;
 	}
 
-	dp->dh.opth = dsr_opt_hdr_add(buf, len, DSR_NO_NEXT_HDR_TYPE);
+	dp->dh.opth = dsr_opt_hdr_add(buf, len, DSR_NO_NEXT_HDR_TYPE);//create DSR opt header
 
 	if (!dp->dh.opth) {
 		DEBUG("Could not create DSR opt header\n");
@@ -102,21 +102,21 @@ int NSCLASS dsr_ack_send(struct in_addr dst, unsigned short id)
 		goto out_err;
 	}
 
-	DEBUG("Sending ACK to %s id=%u\n", print_ip(dst), id);
+	DEBUG("Sending ACK to %s id=%u\n", print_ip(dst), id);//描述发送
 
 	dp->flags |= PKT_XMIT_JITTER;
 
-	XMIT(dp);
+	XMIT(dp);//发送函数
 
 	return 1;
 
       out_err:
-	dsr_pkt_free(dp);
+	dsr_pkt_free(dp);//释放
 	return -1;
 }
 
 static struct dsr_ack_req_opt *dsr_ack_req_opt_create(char *buf, int len,
-						      unsigned short id)
+						      unsigned short id)//requse
 {
 	struct dsr_ack_req_opt *ack_req = (struct dsr_ack_req_opt *)buf;
 
@@ -146,9 +146,9 @@ dsr_ack_req_opt_add(struct dsr_pkt *dp, unsigned short id)
 		buf = (char *)dp->ack_req_opt;
 		goto end;
 	}
-#ifdef NS2
+#ifdef NS2//  判断某个宏是否被定义，若已定义，执行随后的语句
 	if (dp->p) {
-		hdr_cmn *cmh = HDR_CMN(dp->p);
+		hdr_cmn *cmh = HDR_CMN(dp->p);//HDR_CMN(p)的定义位于/ns-allinone-2.35/ns-2.35/common/packet.h中，是宏定义，返回结构体hdr_cmn的access(p)：
 		prot = cmh->ptype();
 	} else
 		prot = DSR_NO_NEXT_HDR_TYPE;
@@ -166,7 +166,7 @@ dsr_ack_req_opt_add(struct dsr_pkt *dp, unsigned short id)
 		buf =
 		    dsr_pkt_alloc_opts(dp,
 				       DSR_OPT_HDR_LEN + DSR_ACK_REQ_HDR_LEN);
-		DEBUG("Allocating options for ACK REQ\n");
+		DEBUG("Allocating options for ACK REQ\n");//为ACK REQ分配选择
 		if (!buf)
 			return NULL;
 
@@ -188,7 +188,7 @@ dsr_ack_req_opt_add(struct dsr_pkt *dp, unsigned short id)
 		buf = dsr_pkt_alloc_opts_expand(dp, DSR_ACK_REQ_HDR_LEN);
 
 		DEBUG("Expanding options for ACK REQ p_len=%d\n",
-		      ntohs(dp->dh.opth->p_len));
+		      ntohs(dp->dh.opth->p_len));//扩展
 		if (!buf)
 			return NULL;
 
@@ -215,7 +215,7 @@ int NSCLASS dsr_ack_req_send(struct in_addr neigh_addr, unsigned short id)
 
 	dp = dsr_pkt_alloc(NULL);
 
-	dp->dst = neigh_addr;
+	dp->dst = neigh_addr;//临近节点
 	dp->nxt_hop = neigh_addr;
 	dp->src = my_addr();
 
@@ -306,6 +306,6 @@ int NSCLASS dsr_ack_opt_recv(struct dsr_ack_opt *ack)
 	n = maint_buf_del_all_id(src, id);
 
 	DEBUG("Removed %d packets from maint buf\n", n);
-	
+
 	return DSR_PKT_NONE;
 }
