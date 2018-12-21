@@ -22,7 +22,7 @@
 #include "dsr.h"
 #include "timer.h"
 
-atomic_t num_pkts = ATOMIC_INIT(0);
+atomic_t num_pkts = ATOMIC_INIT(0);//atomic_t原子级操作
 
 /* Most of this is shamelessly stolen from the linux kernel log routines */
 #define DBG_LOG_BUF_LEN	(16384)
@@ -59,34 +59,34 @@ int do_dbglog(int type, char *buf, int len)
 		break;
 	case 2:		/* Read from log */
 		error = -EINVAL;
-		if (!buf || len < 0)
+		if (!buf || len < 0)//检测传输数据是否错误
 			goto out;
 		error = 0;
 		if (!len)
 			goto out;
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,11)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,11)//如果表达式为真，则运行if，表达式为假，则运行else
 		error = verify_area(VERIFY_WRITE, buf, len);
 #else
-		error = access_ok(VERIFY_WRITE, buf, len) ? 0 : 1;
+		error = access_ok(VERIFY_WRITE, buf, len) ? 0 : 1;//检查一个用户空间的指针是否有效
 #endif
 		if (error)
 			goto out;
 		error =
 		    wait_event_interruptible(dbg_log_wait,
-					     (dbg_log_start - dbg_log_end));
+					     (dbg_log_start - dbg_log_end));//进程睡眠
 		if (error)
 			goto out;
 		i = 0;
 		/* printk(KERN_DEBUG "read\n"); */
-		spin_lock_irq(&dbg_logbuf_lock);
+		spin_lock_irq(&dbg_logbuf_lock);//将中断禁止
 		while (!error && (dbg_log_start != dbg_log_end) && i < len) {
 			c = DBG_LOG_BUF(dbg_log_start);
 			dbg_log_start++;
 			spin_unlock_irq(&dbg_logbuf_lock);
-			error = __put_user(c, buf);
+			error = __put_user(c, buf);//user 和 kernel 之间传输
 			buf++;
 			i++;
-			cond_resched();
+			cond_resched();//让出cpu给其他进程运行
 			spin_lock_irq(&dbg_logbuf_lock);
 		}
 		spin_unlock_irq(&dbg_logbuf_lock);
@@ -121,11 +121,11 @@ int do_dbglog(int type, char *buf, int len)
 		limit = dbg_log_end;
 		/*
 		 * __put_user() could sleep, and while we sleep
-		 * printk() could overwrite the messages 
+		 * printk() could overwrite the messages
 		 * we try to copy to user space. Therefore
 		 * the messages are copied in reverse. <manfreds>
 		 */
-		for (i = 0; i < count && !error; i++) {
+		for (i = 0; i < count && !error; i++) {//获取error
 			j = limit - 1 - i;
 			if (j + dbg_log_buf_len < dbg_log_end)
 				break;
@@ -169,7 +169,7 @@ int do_dbglog(int type, char *buf, int len)
       out:
 	return error;
 }
-static void dsr_emit_log_char(char c)
+static void dsr_emit_log_char(char c)//往log_buf缓冲区写数据
 {
 	DBG_LOG_BUF(dbg_log_end) = c;
 	dbg_log_end++;
@@ -188,7 +188,7 @@ int dsr_vprintk(const char *func, const char *fmt, va_list args)
 	struct timeval now;
 
 	/* This stops the holder of console_sem just where we want him */
-	spin_lock_irqsave(&dbg_logbuf_lock, flags);
+	spin_lock_irqsave(&dbg_logbuf_lock, flags);//使用spin_lock_irqsave在于你不期望在离开临界区后，改变中断的开启，关闭状态！进入临界区是关闭的，离开后它同样应该是关闭的！
 
 	gettime(&now);
 
