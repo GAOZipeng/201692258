@@ -16,7 +16,7 @@
 
 #ifndef NO_GLOBALS
 
-struct neighbor_info {
+struct neighbor_info {  //存储邻居节点信息的结构体
 	struct sockaddr hw_addr;
 	unsigned short id;
 	usecs_t rtt, rto;		/* RTT and Round Trip Timeout */

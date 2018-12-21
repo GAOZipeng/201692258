@@ -5,6 +5,10 @@
  *
  * Author: Erik Nordström, <erikn@it.uu.se>
  */
+/*
+此头文件的主要功能是定义各种路由表操作函数
+带有__的函数和不带有__的函数的区别是后者是前者的具体实现方式（比如使用读写锁来限制临界区读写）
+*/
 #ifndef _TBL_H
 #define _TBL_H
 
@@ -93,7 +97,7 @@ static inline int crit_none(void *foo, void *bar)
 
 /* Functions prefixed with "__" are unlocked, the others are safe. */
 
-static inline int tbl_empty(struct tbl *t)
+static inline int tbl_empty(struct tbl *t) /*判断是否是空表*/
 {
 	int res = 0;
 	DSR_READ_LOCK(&t->lock);
@@ -105,7 +109,7 @@ static inline int tbl_empty(struct tbl *t)
 	return res;
 }
 
-static inline int __tbl_add(struct tbl *t, list_t * l, criteria_t crit)
+static inline int __tbl_add(struct tbl *t, list_t * l, criteria_t crit) //向前添加表项
 {
 	int len;
 
@@ -132,7 +136,7 @@ static inline int __tbl_add(struct tbl *t, list_t * l, criteria_t crit)
 	return len;
 }
 
-static inline int __tbl_add_tail(struct tbl *t, list_t * l)
+static inline int __tbl_add_tail(struct tbl *t, list_t * l) //向尾部添加表项
 {
 	int len;
 
@@ -148,7 +152,7 @@ static inline int __tbl_add_tail(struct tbl *t, list_t * l)
 	return len;
 }
 
-static inline int tbl_add_tail(struct tbl *t, list_t * l)
+static inline int tbl_add_tail(struct tbl *t, list_t * l) //调用__tbl_add_tail()实现并采用读写锁
 {
 	int len;
 	DSR_WRITE_LOCK(&t->lock);
@@ -157,7 +161,7 @@ static inline int tbl_add_tail(struct tbl *t, list_t * l)
 	return len;
 }
 
-static inline void *__tbl_find(struct tbl *t, void *id, criteria_t crit)
+static inline void *__tbl_find(struct tbl *t, void *id, criteria_t crit) //查找节点
 {
 	list_t *pos;
 
@@ -168,7 +172,7 @@ static inline void *__tbl_find(struct tbl *t, void *id, criteria_t crit)
 	return NULL;
 }
 
-static inline void *__tbl_detach(struct tbl *t, list_t * l)
+static inline void *__tbl_detach(struct tbl *t, list_t * l) //删除表
 {
 	int len;
 
@@ -182,7 +186,7 @@ static inline void *__tbl_detach(struct tbl *t, list_t * l)
 	return l;
 }
 
-static inline int __tbl_del(struct tbl *t, list_t * l)
+static inline int __tbl_del(struct tbl *t, list_t * l) //调用__tbl_detach()来删除表
 {
 
 	if (!__tbl_detach(t, l))
@@ -204,7 +208,7 @@ static inline int __tbl_find_do(struct tbl *t, void *data, do_t func)
 	return 0;
 }
 
-static inline int tbl_find_do(struct tbl *t, void *data, do_t func)
+static inline int tbl_find_do(struct tbl *t, void *data, do_t func) //调用__tbl_find_do()及读写锁来实现
 {
 	int res;
 

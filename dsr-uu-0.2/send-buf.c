@@ -36,7 +36,7 @@ static DSRUUTimer send_buf_timer;
 static int send_buf_print(struct tbl *t, char *buffer);
 #endif
 
-struct send_buf_entry {
+struct send_buf_entry { // send_buff_entry 
 	list_t l;
 	struct dsr_pkt *dp;
 	struct timeval qtime;
@@ -44,8 +44,8 @@ struct send_buf_entry {
 };
 
 
-static inline int crit_addr(void *pos, void *addr)
-{
+static inline int crit_addr(void *pos, void *addr) //判断address是否一致
+{ 
 	struct in_addr *a = (struct in_addr *)addr;
 	struct send_buf_entry *e = (struct send_buf_entry *)pos;
 
@@ -68,12 +68,12 @@ static inline int crit_garbage(void *pos, void *n)
 	return 0;
 }
 
-void NSCLASS send_buf_set_max_len(unsigned int max_len)
+void NSCLASS send_buf_set_max_len(unsigned int max_len) //设定缓冲区最大容量
 {
 	send_buf.max_len = max_len;
 }
 
-void NSCLASS send_buf_timeout(unsigned long data)
+void NSCLASS send_buf_timeout(unsigned long data) //设置缓冲区超时时间
 {
 	struct send_buf_entry *e;
 	int pkts;
@@ -109,7 +109,7 @@ void NSCLASS send_buf_timeout(unsigned long data)
 }
 
 static struct send_buf_entry *send_buf_entry_create(struct dsr_pkt *dp,
-						    xmit_fct_t okfn)
+						    xmit_fct_t okfn) //创建send_buf_entry
 {
 	struct send_buf_entry *e;
 
@@ -236,7 +236,7 @@ int NSCLASS send_buf_set_verdict(int verdict, struct in_addr dst)
 	return pkts;
 }
 
-static inline int send_buf_flush(struct tbl *t)
+static inline int send_buf_flush(struct tbl *t) //释放缓冲区
 {
 	struct send_buf_entry *e;
 	int pkts = 0;
@@ -282,7 +282,7 @@ static int send_buf_print(struct tbl *t, char *buffer)
 }
 
 static int
-send_buf_get_info(char *buffer, char **start, off_t offset, int length)
+send_buf_get_info(char *buffer, char **start, off_t offset, int length) //返回缓冲区内非空内容的长度
 {
 	int len;
 
@@ -300,7 +300,7 @@ send_buf_get_info(char *buffer, char **start, off_t offset, int length)
 
 #endif				/* __KERNEL__ */
 
-int __init NSCLASS send_buf_init(void)
+int __init NSCLASS send_buf_init(void) //初始化缓冲区
 {
 #ifdef __KERNEL__
 	struct proc_dir_entry *proc;
@@ -323,7 +323,7 @@ int __init NSCLASS send_buf_init(void)
 	return 1;
 }
 
-void __exit NSCLASS send_buf_cleanup(void)
+void __exit NSCLASS send_buf_cleanup(void) //调用send_buf_flush并加入读写锁来清除缓冲区
 {
 	int pkts;
 #ifdef KERNEL26
