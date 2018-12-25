@@ -49,9 +49,9 @@ static struct lc_graph LC;
 #define LC_GARBAGE_COLLECT_INTERVAL 5 * 1000000	/* 5 Seconds */
 #endif				/* LC_TIMER */
 
-struct lc_node {
+struct lc_node {			// 一个链路中节点的结构，包含ipv4地址，连接数，D算法开销，经过的跳数
 	list_t l;
-	struct in_addr addr;
+	struct in_addr addr;	// in_addr 可以存储ipv4地址
 	unsigned int links;
 	unsigned int cost;	/* Cost estimate from source when running Dijkstra */
 	unsigned int hops;	/* Number of hops from source. Used to get the
@@ -60,7 +60,7 @@ struct lc_node {
 	struct lc_node *pred;	/* predecessor */
 };
 
-struct lc_link {
+struct lc_link {			// 链路中节点间的链接的结构，包含源、目的节点，状态，开销。
 	list_t l;
 	struct lc_node *src, *dst;
 	int status;
@@ -68,11 +68,11 @@ struct lc_link {
 	struct timeval expires;
 };
 
-struct link_query {
+struct link_query {			// ？ 地址查询
 	struct in_addr src, dst;
 };
 
-struct cheapest_node {
+struct cheapest_node {		// 存储开销最少的节点，指针指向其地址
 	struct lc_node *n;
 };
 
@@ -81,7 +81,7 @@ static int lc_print(struct lc_graph *LC, char *buf);
 #endif
 
 static inline void __lc_link_del(struct lc_graph *lc, struct lc_link *link)
-{
+{																		//删除连接表（参数一）中的连接（参数二）
 	/* Also free the nodes if they lack other links */
 	if (--link->src->links == 0)
 		__tbl_del(&lc->nodes, &link->src->l);
@@ -92,7 +92,7 @@ static inline void __lc_link_del(struct lc_graph *lc, struct lc_link *link)
 	__tbl_del(&lc->links, &link->l);
 }
 
-static inline int crit_addr(void *pos, void *addr)
+static inline int crit_addr(void *pos, void *addr)						// 判断pos节点的地址是否为addr， 是1否0
 {
 	struct in_addr *a = (struct in_addr *)addr;
 	struct lc_node *p = (struct lc_node *)pos;
@@ -101,7 +101,7 @@ static inline int crit_addr(void *pos, void *addr)
 		return 1;
 	return 0;
 }
-static inline int crit_link_query(void *pos, void *query)
+static inline int crit_link_query(void *pos, void *query)				// 判断pos节点的源、目的地址是否为query， 是1否0
 {
 	struct lc_link *p = (struct lc_link *)pos;
 	struct link_query *q = (struct link_query *)query;
@@ -112,7 +112,7 @@ static inline int crit_link_query(void *pos, void *query)
 	return 0;
 }
 
-static inline int crit_expire(void *pos, void *data)
+static inline int crit_expire(void *pos, void *data)					// 判断连接图中的连接是否到期？ 到期则删除并返回1， 否则0
 {
 	struct lc_link *link = (struct lc_link *)pos;
 	struct lc_graph *lc = (struct lc_graph *)data;
@@ -130,7 +130,7 @@ static inline int crit_expire(void *pos, void *data)
 	return 0;
 }
 
-static inline int do_lowest_cost(void *pos, void *data)
+static inline int do_lowest_cost(void *pos, void *data)					// 更新Cheapest_node节点的D算法开销
 {
 	struct lc_node *n = (struct lc_node *)pos;
 	struct cheapest_node *cn = (struct cheapest_node *)data;
@@ -141,7 +141,7 @@ static inline int do_lowest_cost(void *pos, void *data)
 	return 0;
 }
 
-static inline int do_relax(void *pos, void *node)
+static inline int do_relax(void *pos, void *node)						//	更新节点node (u) 的目的节点 (v) 的开销
 {
 	struct lc_link *link = (struct lc_link *)pos;
 	struct lc_node *u = (struct lc_node *)node;
@@ -154,14 +154,14 @@ static inline int do_relax(void *pos, void *node)
 		if ((u->cost + w) < v->cost) {
 			v->cost = u->cost + w;
 			v->hops = u->hops + 1;
-			v->pred = u;
+			v->pred = u;												
 			return 1;
 		}
 	}
 	return 0;
 }
 
-static inline int do_init(void *pos, void *addr)
+static inline int do_init(void *pos, void *addr)						// 初始化一个节点的开销，跳数，前置节点等信息
 {
 	struct in_addr *a = (struct in_addr *)addr;
 	struct lc_node *n = (struct lc_node *)pos;
@@ -222,7 +222,7 @@ void NSCLASS lc_garbage_collect_set(void)
 
 #endif				/* LC_TIMER */
 
-static inline struct lc_node *lc_node_create(struct in_addr addr)
+static inline struct lc_node *lc_node_create(struct in_addr addr)			// 创建一个节点
 {
 	struct lc_node *n;
 
@@ -242,13 +242,13 @@ static inline struct lc_node *lc_node_create(struct in_addr addr)
 
 static inline struct lc_link *__lc_link_find(struct tbl *t, struct in_addr src,
 					     struct in_addr dst)
-{
-	struct link_query q = { src, dst };
+{																			// 通过源、目的地址寻找图中节点
+	struct link_query q = { src, dst };	
 	return (struct lc_link *)__tbl_find(t, &q, crit_link_query);
 }
 
 static int __lc_link_tbl_add(struct tbl *t, struct lc_node *src,
-			     struct lc_node *dst, usecs_t timeout, 
+			     struct lc_node *dst, usecs_t timeout, 						// 将给定连接信息加入图中
 			     int status, int cost)
 {
 	struct lc_link *link;
@@ -288,7 +288,7 @@ static int __lc_link_tbl_add(struct tbl *t, struct lc_node *src,
 }
 
 int NSCLASS lc_link_add(struct in_addr src, struct in_addr dst,
-			usecs_t timeout, int status, int cost)
+			usecs_t timeout, int status, int cost)							// 利用上述函数完成连接的添加
 {
 	struct lc_node *sn, *dn;
 	int res;
@@ -342,7 +342,7 @@ int NSCLASS lc_link_add(struct in_addr src, struct in_addr dst,
 }
 
 int NSCLASS lc_link_del(struct in_addr src, struct in_addr dst)
-{
+{																			// 利用__lc_link_del()函数实现删除link
 	struct lc_link *link;
 	int res = 1;
 
@@ -374,7 +374,7 @@ int NSCLASS lc_link_del(struct in_addr src, struct in_addr dst)
 }
 
 static inline void
-__dijkstra_init_single_source(struct tbl *t, struct in_addr src)
+__dijkstra_init_single_source(struct tbl *t, struct in_addr src)			
 {
 	__tbl_do_for_each(t, &src, do_init);
 }
