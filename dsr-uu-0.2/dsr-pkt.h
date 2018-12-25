@@ -23,10 +23,10 @@
 
 /* Internal representation of a packet. For portability */
 struct dsr_pkt {
-	struct in_addr src;	/* IP level data */
-	struct in_addr dst;
-	struct in_addr nxt_hop;
-	struct in_addr prv_hop;
+	struct in_addr src;	/* IP level data */ //源节点
+	struct in_addr dst;  //目的节点
+	struct in_addr nxt_hop;  //下个节点
+	struct in_addr prv_hop;  //上一个节点
 	int flags;
 	int salvage;
 #ifdef NS2

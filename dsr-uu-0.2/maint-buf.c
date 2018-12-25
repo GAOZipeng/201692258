@@ -58,6 +58,9 @@ static int maint_buf_print(struct tbl *t, char *buffer);
 
 /* Criteria function for deleting packets from buffer based on next hop and
  * id */
+/*
+	基于下一跳ID从缓冲区中删除分组的标准函数
+*/
 static inline int crit_addr_id_del(void *pos, void *data)
 {
 	struct maint_entry *m = (struct maint_entry *)pos;
@@ -85,6 +88,7 @@ static inline int crit_addr_id_del(void *pos, void *data)
 }
 
 /* Criteria function for deleting packets from buffer based on next hop */
+/* 用于基于下一跳从缓冲区中删除分组的标准函数 */
 static inline int crit_addr_del(void *pos, void *data)
 {
 	struct maint_entry *m = (struct maint_entry *)pos;
@@ -112,6 +116,7 @@ static inline int crit_addr_del(void *pos, void *data)
 
 
 /* Criteria function for buffered packets based on next hop */
+/* 基于下一跳的缓冲分组标准函数 */
 static inline int crit_addr(void *pos, void *data)
 {
 	struct maint_entry *m = (struct maint_entry *)pos;
@@ -124,6 +129,7 @@ static inline int crit_addr(void *pos, void *data)
 }
 
 /* Criteria function for buffered packets based on expire time */
+//基于超时的缓冲分组标准函数
 static inline int crit_expires(void *pos, void *data)
 {
 	struct maint_entry *m = (struct maint_entry *)pos;
@@ -136,6 +142,7 @@ static inline int crit_expires(void *pos, void *data)
 }
 
 /* Criteria function for buffered packets based on sent ACK REQ */
+//基于发送ACK 和 request缓冲分组标准函数
 static inline int crit_ack_req_sent(void *pos, void *data)
 {
 	struct maint_entry *m = (struct maint_entry *)pos;
@@ -145,6 +152,7 @@ static inline int crit_ack_req_sent(void *pos, void *data)
 	return 0;
 }
 
+// 设置缓冲区最大长度
 void NSCLASS maint_buf_set_max_len(unsigned int max_len)
 {
 	maint_buf.max_len = max_len;

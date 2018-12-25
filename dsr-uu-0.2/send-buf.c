@@ -38,13 +38,13 @@ static int send_buf_print(struct tbl *t, char *buffer);
 
 struct send_buf_entry { // send_buff_entry 
 	list_t l;
-	struct dsr_pkt *dp;
+	struct dsr_pkt *dp;   //dsr路由协议数据包
 	struct timeval qtime;
-	xmit_fct_t okfn;
+	xmit_fct_t okfn; 
 };
 
 
-static inline int crit_addr(void *pos, void *addr) //判断address是否一致
+static inline int crit_addr(void *pos, void *addr) //判断address是否一致?
 { 
 	struct in_addr *a = (struct in_addr *)addr;
 	struct send_buf_entry *e = (struct send_buf_entry *)pos;
@@ -68,12 +68,12 @@ static inline int crit_garbage(void *pos, void *n)
 	return 0;
 }
 
-void NSCLASS send_buf_set_max_len(unsigned int max_len) //设定缓冲区最大容量
+void NSCLASS send_buf_set_max_len(unsigned int max_len) //设定缓冲区最大容?
 {
 	send_buf.max_len = max_len;
 }
 
-void NSCLASS send_buf_timeout(unsigned long data) //设置缓冲区超时时间
+void NSCLASS send_buf_timeout(unsigned long data) //设置缓冲区超时时?
 {
 	struct send_buf_entry *e;
 	int pkts;
@@ -236,7 +236,7 @@ int NSCLASS send_buf_set_verdict(int verdict, struct in_addr dst)
 	return pkts;
 }
 
-static inline int send_buf_flush(struct tbl *t) //释放缓冲区
+static inline int send_buf_flush(struct tbl *t) //释放缓冲?
 {
 	struct send_buf_entry *e;
 	int pkts = 0;
@@ -282,7 +282,7 @@ static int send_buf_print(struct tbl *t, char *buffer)
 }
 
 static int
-send_buf_get_info(char *buffer, char **start, off_t offset, int length) //返回缓冲区内非空内容的长度
+send_buf_get_info(char *buffer, char **start, off_t offset, int length) //返回缓冲区内非空内容的长?
 {
 	int len;
 
