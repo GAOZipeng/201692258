@@ -26,7 +26,9 @@
 #include "debug.h"
 #include "send-buf.h"
 
-int NSCLASS dsr_recv(struct dsr_pkt *dp)
+
+//定义了一些东软数据包的io操作
+int NSCLASS dsr_recv(struct dsr_pkt *dp)  
 {
 	int i = 0, action;
 	int mask = DSR_PKT_NONE;

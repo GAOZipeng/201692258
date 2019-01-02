@@ -58,6 +58,7 @@ static struct packet_type dsr_packet_type = {
 	.func = dsr_dev_llrecv,
 };
 
+//skb   --- socket buffer
 struct sk_buff *dsr_skb_create(struct dsr_pkt *dp, struct net_device *dev)
 {
 	struct sk_buff *skb;
@@ -117,11 +118,12 @@ struct sk_buff *dsr_skb_create(struct dsr_pkt *dp, struct net_device *dev)
 	return skb;
 }
 
+// hw   ---  hard ware 
 int dsr_hw_header_create(struct dsr_pkt *dp, struct sk_buff *skb)
 {
 
 	struct sockaddr broadcast =
-	    { AF_UNSPEC, {0xff, 0xff, 0xff, 0xff, 0xff, 0xff} };
+	    { AF_UNSPEC, {0xff, 0xff, 0xff, 0xff, 0xff, 0xff} }; // ¹ã²¥Óò
 	struct neighbor_info neigh_info;
 
 	if (dp->dst.s_addr == DSR_BROADCAST)

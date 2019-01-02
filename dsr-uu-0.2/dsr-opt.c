@@ -71,7 +71,7 @@ struct iphdr *dsr_build_ip(struct dsr_pkt *dp, struct in_addr src,
 }
 #endif
 
-struct dsr_opt *dsr_opt_find_opt(struct dsr_pkt *dp, int type)
+struct dsr_opt *dsr_opt_find_opt(struct dsr_pkt *dp, int type) //得到包内type的选项
 {
 	int dsr_len, l;
 	struct dsr_opt *dopt;
@@ -91,7 +91,7 @@ struct dsr_opt *dsr_opt_find_opt(struct dsr_pkt *dp, int type)
 	return NULL;
 }
 
-int NSCLASS dsr_opt_remove(struct dsr_pkt *dp)
+int NSCLASS dsr_opt_remove(struct dsr_pkt *dp) //删除DSR中的选项
 {
 	int len, ip_len, prot, ttl;
 
@@ -115,7 +115,7 @@ int NSCLASS dsr_opt_remove(struct dsr_pkt *dp)
 	return len;
 }
 
-int dsr_opt_parse(struct dsr_pkt *dp)
+int dsr_opt_parse(struct dsr_pkt *dp)  //解析DSR包，判断是否有错误信息
 {
 	int dsr_len, l, n = 0;
 	struct dsr_opt *dopt;
@@ -135,9 +135,9 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 
 	while (l < dsr_len && (dsr_len - l) > 2) {
 		switch (dopt->type) {
-		case DSR_OPT_PADN:
+		case DSR_OPT_PADN:  //选项为
 			break;
-		case DSR_OPT_RREQ:
+		case DSR_OPT_RREQ: /*选项为路由请求*/
 			if (dp->num_rreq_opts == 0)
 				dp->rreq_opt = (struct dsr_rreq_opt *)dopt;
 #ifndef NS2
@@ -145,7 +145,7 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 				DEBUG("ERROR: More than one RREQ option!!\n");
 #endif
 			break;
-		case DSR_OPT_RREP:
+		case DSR_OPT_RREP: //选项为路由回复
 			if (dp->num_rrep_opts < MAX_RREP_OPTS)
 				dp->rrep_opt[dp->num_rrep_opts++] = (struct dsr_rrep_opt *)dopt;
 #ifndef NS2
@@ -153,7 +153,7 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 				DEBUG("Maximum RREP opts in one packet reached\n");
 #endif
 			break;
-		case DSR_OPT_RERR:
+		case DSR_OPT_RERR: //选项为路由错误
 			if (dp->num_rerr_opts < MAX_RERR_OPTS)
 				dp->rerr_opt[dp->num_rerr_opts++] = (struct dsr_rerr_opt *)dopt;
 #ifndef NS2
@@ -161,9 +161,9 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 				DEBUG("Maximum RERR opts in one packet reached\n");
 #endif
 			break;
-		case DSR_OPT_PREV_HOP:
+		case DSR_OPT_PREV_HOP: //选项为前一跳
 			break;
-		case DSR_OPT_ACK:
+		case DSR_OPT_ACK:  //选项为ack
 			if (dp->num_ack_opts < MAX_ACK_OPTS)
 				dp->ack_opt[dp->num_ack_opts++] = (struct dsr_ack_opt *)dopt;
 #ifndef NS2
@@ -171,7 +171,7 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 				DEBUG("Maximum ACK opts in one packet reached\n");
 #endif
 			break;
-		case DSR_OPT_SRT:
+		case DSR_OPT_SRT: // 选项为源路由
 			if (!dp->srt_opt)
 				dp->srt_opt = (struct dsr_srt_opt *)dopt;
 #ifndef NS2
@@ -179,11 +179,11 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 				DEBUG("More than one source route in packet\n");
 #endif
 			break;
-		case DSR_OPT_TIMEOUT:
+		case DSR_OPT_TIMEOUT:  //超时
 			break;
-		case DSR_OPT_FLOWID:
+		case DSR_OPT_FLOWID:  
 			break;
-		case DSR_OPT_ACK_REQ:
+		case DSR_OPT_ACK_REQ:  //ack请求
 			if (!dp->ack_req_opt)
 				dp->ack_req_opt = (struct dsr_ack_req_opt *)dopt;
 #ifndef NS2
@@ -208,7 +208,7 @@ int dsr_opt_parse(struct dsr_pkt *dp)
 	return n;
 }
 
-int NSCLASS dsr_opt_recv(struct dsr_pkt *dp)
+int NSCLASS dsr_opt_recv(struct dsr_pkt *dp)  //收到一个含option的dsr包
 {
 	int dsr_len, l;
 	int action = 0;
@@ -226,10 +226,10 @@ int NSCLASS dsr_opt_recv(struct dsr_pkt *dp)
 
 	if (dp->dst.s_addr == myaddr.s_addr &&
 	    (DATA_PACKET(dp->dh.opth->nh) || dp->dh.opth->nh == PT_PING))
-		action |= DSR_PKT_DELIVER;
+		action |= DSR_PKT_DELIVER; //向上层递交
 #else
 	if (dp->dst.s_addr == myaddr.s_addr && dp->payload_len != 0)
-		action |= DSR_PKT_DELIVER;
+		action |= DSR_PKT_DELIVER; //向上层递交
 #endif
 	dsr_len = dsr_pkt_opts_len(dp);
 
@@ -243,28 +243,28 @@ int NSCLASS dsr_opt_recv(struct dsr_pkt *dp)
 		switch (dopt->type) {
 		case DSR_OPT_PADN:
 			break;
-		case DSR_OPT_RREQ:
+		case DSR_OPT_RREQ: //如果是收到一个RREQ包
 			if (dp->flags & PKT_PROMISC_RECV)
 				break;
 			
-			action |= dsr_rreq_opt_recv(dp, (struct dsr_rreq_opt *)dopt);
+			action |= dsr_rreq_opt_recv(dp, (struct dsr_rreq_opt *)dopt); //action 与dsr_rreq_opt_recv(,)按位或运算后赋值给action
 			break;
-		case DSR_OPT_RREP:
+		case DSR_OPT_RREP: //如果是收到一个RREP包
 			if (dp->flags & PKT_PROMISC_RECV)
 				break;
 			
-			action |= dsr_rrep_opt_recv(dp, (struct dsr_rrep_opt *)dopt);		       
+			action |= dsr_rrep_opt_recv(dp, (struct dsr_rrep_opt *)dopt);  //同上       
 			break;
-		case DSR_OPT_RERR:
+		case DSR_OPT_RERR:  //如果收到的是RERR包
 			if (dp->flags & PKT_PROMISC_RECV)
 				break;
 			if (dp->num_rerr_opts < MAX_RERR_OPTS) {
 				action |=
-				    dsr_rerr_opt_recv(dp, (struct dsr_rerr_opt *)dopt);
+				    dsr_rerr_opt_recv(dp, (struct dsr_rerr_opt *)dopt);  //同上
 			}
 
 			break;
-		case DSR_OPT_PREV_HOP:
+		case DSR_OPT_PREV_HOP:  //
 			break;
 		case DSR_OPT_ACK:
 			if (dp->flags & PKT_PROMISC_RECV)

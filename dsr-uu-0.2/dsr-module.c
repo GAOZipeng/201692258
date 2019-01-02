@@ -345,7 +345,7 @@ static struct net_protocol dsr_inet_prot = {
 #endif
 };
 
-static int __init dsr_module_init(void)
+static int __init dsr_module_init(void)  //dsr 模型的初始化
 {
 	int res = -EAGAIN;
 	struct proc_dir_entry *proc;
